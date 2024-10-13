@@ -2,11 +2,11 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class LoginActivity extends AppCompatActivity {
@@ -25,15 +25,15 @@ public class LoginActivity extends AppCompatActivity {
         EditText username = findViewById(R.id.et_username);
         EditText password = findViewById(R.id.et_password);
         Button loginButton = findViewById(R.id.btn_login);
-
-        // Initialize Sign Up link
         TextView signupText = findViewById(R.id.tv_signup);
+
+        // Signup link click listener
         signupText.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
             startActivity(intent);
         });
 
-        // Set login button click listener
+        // Login button click listener
         loginButton.setOnClickListener(v -> {
             String user = username.getText().toString().trim();
             String pass = password.getText().toString().trim();
@@ -48,21 +48,39 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            // Validate credentials using SQLite DB
-            try {
-                if (dbHelper.validateUser(user, pass)) {
-                    // If login is successful, navigate to MainActivity
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.putExtra("username", user);
+            // Validate credentials
+            if (dbHelper.validateUser(user, pass)) {
+                String userType = dbHelper.getUserType(user);
+
+                // Log the user type for debugging purposes
+                Log.d("LoginActivity", "User type retrieved from database: " + userType);
+
+                if (userType != null) {
+                    // Normalize user type to lowercase for case-insensitive comparison
+                    userType = userType.toLowerCase();
+
+                    Intent intent;
+                    if (userType.equals("customer")) {
+                        intent = new Intent(LoginActivity.this, CustomerDashboardActivity.class);
+                    } else if (userType.equals("shopkeeper")) {
+                        intent = new Intent(LoginActivity.this, ShopkeeperDashboardActivity.class);
+                    } else {
+                        // If an unknown user type is encountered
+                        Toast.makeText(LoginActivity.this, "Unknown user type", Toast.LENGTH_SHORT).show();
+                        return;  // Exit the function to prevent any further execution
+                    }
+
+                    // Start the appropriate activity
                     startActivity(intent);
-                    finish(); // Close LoginActivity
+                    finish();  // Close the login activity
+
                 } else {
-                    // Show error message if validation fails
-                    Toast.makeText(LoginActivity.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
+                    // If the user type was not found
+                    Toast.makeText(LoginActivity.this, "User type not found", Toast.LENGTH_SHORT).show();
                 }
-            } catch (Exception e) {
-                Toast.makeText(LoginActivity.this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show();
-                e.printStackTrace(); // Log the error for debugging
+            } else {
+                // Handle invalid credentials here
+                Toast.makeText(LoginActivity.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
             }
         });
     }

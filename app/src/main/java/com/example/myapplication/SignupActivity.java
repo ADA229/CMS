@@ -44,26 +44,38 @@ public class SignupActivity extends AppCompatActivity {
             String confirmPass = confirmPassword.getText().toString().trim();
             String selectedUserType = userTypeSpinner.getSelectedItem().toString(); // Get selected user type
 
+            // Input validation
+            if (user.isEmpty()) {
+                Toast.makeText(SignupActivity.this, "Please enter a username", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (pass.isEmpty()) {
+                Toast.makeText(SignupActivity.this, "Please enter a password", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (confirmPass.isEmpty()) {
+                Toast.makeText(SignupActivity.this, "Please confirm your password", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             // Check if passwords match
             if (!pass.equals(confirmPass)) {
                 Toast.makeText(SignupActivity.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Check if username already exists
-            if (dbHelper.usernameExists(user)) {
-                Toast.makeText(SignupActivity.this, "Username already exists", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
             // Add user to the database
-            dbHelper.addUser(user, pass,selectedUserType);
-            Toast.makeText(SignupActivity.this, "User created successfully as " + selectedUserType, Toast.LENGTH_SHORT).show();
+            try {
+                dbHelper.addUser(user, pass, selectedUserType);
+                Toast.makeText(SignupActivity.this, "User created successfully as " + selectedUserType, Toast.LENGTH_SHORT).show();
 
-            // Navigate to LoginActivity after successful signup
-            Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish(); // Close SignupActivity
+                // Navigate to LoginActivity after successful signup
+                Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish(); // Close SignupActivity
+            } catch (IllegalArgumentException e) {
+                Toast.makeText(SignupActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 }

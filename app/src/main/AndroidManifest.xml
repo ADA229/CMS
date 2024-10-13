@@ -23,12 +23,22 @@
         <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
-            android:exported="true" /> <!-- Optional: Make it exported if it can be launched from outside -->
+            android:exported="true" />
 
         <!-- Signup Activity -->
         <activity
             android:name=".SignupActivity"
-            android:exported="true" /> <!-- Ensure you add the SignupActivity if it exists -->
+            android:exported="true" />
+
+        <!-- Customer Dashboard Activity -->
+        <activity
+            android:name=".CustomerDashboardActivity"
+            android:exported="false" />
+
+        <!-- Shopkeeper Dashboard Activity -->
+        <activity
+            android:name=".ShopkeeperDashboardActivity"
+            android:exported="false" />
 
     </application>
 
